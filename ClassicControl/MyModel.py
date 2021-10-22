@@ -1,12 +1,5 @@
-import random
-import gym
-import numpy as np
-from collections import deque
-from tensorflow import keras
-from tensorflow.keras.optimizers import Adam, RMSprop
-from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense
-from tensorflow.keras.optimizers import Adam, RMSprop
 
 
 def myModel(input_space, action_space, name, opt=str, num_of_layers=1, densities=None):

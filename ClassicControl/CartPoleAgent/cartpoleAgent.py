@@ -4,28 +4,28 @@ import gym
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
-from MyDQLAgent import DQLAgent
-
+from ClassicControl.MyDQLAgent import DQLAgent
+from ClassicControl.visualizer import clean, plot
 
 def main():
     name = 'CartPole-v1'
+    path = 'CartPoleResultsv1.csv'
     episodes = 1000
     env = gym.make(name)
 
-    #start_training(env, episodes)
-    df = pd.DataFrame()
-    for i in range(4):
-        modelStart = time.perf_counter()
-        scores = test_model(env, f'{name}.{i}.h5', episodes)
-        modelEnd = time.perf_counter()
-        print(f'Model {name}.{i} finished in {modelEnd - modelStart:0.3f} seconds.')
-        df['{name}.{i}'] = scores
-    df.to_csv('CartPoleResults.csv')
+    #start_training(env, name, episodes)
+    #call_test_model(env, name, episodes, path)
+    #plot_data(episodes, path)
     # plt.show()
-    # plt.savefig('CartPoleResults.png')
+    # plt.savefig(f'{path}.png')
 
-def start_training(env, episodes):
-    names = [f'CartPole-v1(1.{i})' for i in range(4)]
+def plot_data(episodes: int, path: str):
+    df = clean(path, episodes)
+    plot(df)
+
+
+def start_training(env, name, episodes):
+    names = [f'{name}.{i}' for i in range(4)]
     episodes_nums = []
     time_elapsed = []
 
@@ -53,6 +53,17 @@ def start_training(env, episodes):
     for i in range(4):
         print(f'{names[i]} finished in {episodes_nums[i]} episodes. Time elapse: {time_elapsed[i]}')
     print('---------------------------------------------')
+
+
+def call_test_model(env, name, episodes, path):
+    df = pd.DataFrame()
+    for i in range(4):
+        modelStart = time.perf_counter()
+        scores = test_model(env, f'{name}.{i}.h5', episodes)
+        modelEnd = time.perf_counter()
+        print(f'Model {name}.{i} finished in {modelEnd - modelStart:0.3f} seconds.')
+        df[f'{name}.{i}'] = scores
+    df.to_csv(path)
 
 
 def test_model(env, modelPath, episodes) -> list:

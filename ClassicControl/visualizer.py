@@ -7,10 +7,10 @@ import seaborn as sns
 def main():
     data = clean('CartPoleResultsv1.csv')
     plot(data)
-    plt.show()
+    plt.savefig('CartPoleResultsv1.png')
 
 
-def clean(inputPath: str) -> pd.DataFrame:
+def clean(inputPath: str, episdoes: int) -> pd.DataFrame:
     df = pd.read_csv(inputPath, index_col=0)
     names = []
     scores = []
@@ -24,7 +24,7 @@ def clean(inputPath: str) -> pd.DataFrame:
 
 
 def plot(data: pd.DataFrame):
-    sns.catplot(x='Scores', y='Version', data=data, palette=sns.color_palette('flare'))
+    sns.catplot(x='Scores', y='Version', data=data, palette=sns.color_palette('flare'), aspect=2.5)
 
 
 if __name__ == '__main__':
