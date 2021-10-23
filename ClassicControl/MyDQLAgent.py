@@ -1,20 +1,27 @@
 import random
 from collections import deque
 import numpy as np
-from MyModel import myModel
+from ClassicControl.MyModel import myModel
+
 
 class DQLAgent():
-    def __init__(self, game, name: str, opt: str, layers: int, densities, episodes=1000, gamma=0.9, loseLoss=100):
-        self.name = name
+    def __init__(self, game, state, action_space, path: str, opt: str, layers: int, densities, rewardFunc, objective, loseLoss, scoreFunc, episodes=1000):
         self.env = game
+        self.path = path
+        self.objective = objective
+        self.loseLoss = loseLoss
+        self.scoreFunc = scoreFunc
+        self.rewardFunc = rewardFunc
 
-        self.state_size = self.env.observation_space.shape[0]
+        self.state = state
+        self.state_size = state.shape[0]
         self.action_size = self.env.action_space.n
+        self.action_space = action_space
         self.episodes = episodes
         self.memory = deque(maxlen=2000)
-        self.loseLoss = loseLoss
+        self.step = 0
 
-        self.gamma = gamma  # discount rate
+        self.gamma = 0.95  # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.001
         self.epsilon_decay = 0.999
@@ -22,7 +29,7 @@ class DQLAgent():
         self.train_start = 1000
 
         self.model = myModel(input_space=(self.state_size,), action_space=self.action_size,
-                             name=name, num_of_layers=layers, densities=densities, opt=opt)
+                             name=path, num_of_layers=layers, densities=densities, opt=opt)
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -34,19 +41,17 @@ class DQLAgent():
 
     def act(self, state):
         if np.random.random() <= self.epsilon:
-            return np.random.choice(self.action_size)
+            return self.action_space[np.random.choice(self.action_size)]
         else:
-            return np.argmax(self.model.predict(state))
+            return self.action_space[np.argmax(self.model.predict(state))]
 
     def replay(self):
         if len(self.memory) < self.train_start:
             return
 
         miniBatch = random.sample(self.memory, min([len(self.memory), self.batch_size]))
-        #mBCopy = miniBatch.copy()
 
         stateSpace = np.zeros((self.batch_size, self.state_size))
-        #ssCopy = stateSpace.copy()
         nextStateSpace = np.zeros((self.batch_size, self.state_size))
         action, reward, done = [], [], []
 
@@ -57,16 +62,14 @@ class DQLAgent():
             nextStateSpace[i] = miniBatch[i][3]
             done.append(miniBatch[i][4])
 
-        #ssCopy = mBCopy[:, 0]
-
         target = self.model.predict(stateSpace)
         nextTarget = self.model.predict(nextStateSpace)
 
         for i in range(self.batch_size):
             if done[i]:
-                target[i][action[i]] = reward[i]
+                target[i][self.action_space.index(action[i])] = reward[i]
             else:
-                target[i][action[i]] = reward[i] + self.gamma * (np.max(nextTarget[i]))
+                target[i][self.action_space.index(action[i])] = reward[i] + self.gamma * (np.max(nextTarget[i]))
 
         self.model.fit(stateSpace, target, batch_size=self.batch_size, verbose=0)
 
@@ -74,32 +77,39 @@ class DQLAgent():
         self.model.save(name)
 
     def run(self):
+        timesCorrect = 0
         for episode in range(self.episodes):
-            state = self.env.reset()
-            state = np.reshape(state, [1, self.state_size])
+            self.state = self.env.reset()
+            self.state = np.reshape(self.state, [1, self.state_size])
             done = False
-            i = 0
+            self.step = 0
             while not done:
                 # Comment out the below to skip watching the learning process
                 # self.env.render()
+                # print(f'Step: {self.step}')
 
-                action = self.act(state)
+                action = self.act(self.state)
                 # _ blocks the output. We don't care about extraneous info here
                 next_state, reward, done, _ = self.env.step(action)
                 next_state = np.reshape(next_state, [1, self.state_size])
+                reward = self.rewardFunc(self)
+                prev_state = self.state
+                self.state = next_state
 
-                if done and i != self.env._max_episode_steps - 1:
-                    reward -= self.loseLoss
-
-                self.remember(state, action, reward, next_state, done)
-                state = next_state
-                i += 1
+                self.step += 1
 
                 if done:
-                    print(f"Episode: {episode}/{self.episodes}, score: {i}, e: {self.epsilon:.2}")
-                    if i == 500:
-                        print(f"Saving trained model as {self.name}.h5")
-                        self.save(self.name + ".h5")
-                        return episode
+                    print(f"Episode: {episode}/{self.episodes}, score: {self.scoreFunc(self)}, e: {self.epsilon:.2}")
+                    if self.objective(self):
+                        timesCorrect += 1
+                        if timesCorrect == 5:
+                            print(f"Saving trained model as {self.path}.h5")
+                            self.save(self.path + ".h5")
+                            return episode
+                    else:
+                        reward -= self.loseLoss(self)
+
+                self.remember(prev_state, action, reward, next_state, done)
+
                 self.replay()
 
