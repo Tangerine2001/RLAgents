@@ -15,10 +15,10 @@ def main():
     episodes = 1000
     model_path = 'AcrobotAgent'
 
-    #start_training(env, model_path, episodes)
+    start_training(env, model_path, episodes)
 
     result_path = 'AcrobotAgentResults.csv'
-    # call_test_model(env, model_path, episodes, result_path)
+    call_test_model(env, model_path, episodes, result_path)
     plot_data(episodes, result_path)
     plt.savefig('AcrobotAgent.png')
     plt.show()

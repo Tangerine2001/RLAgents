@@ -10,12 +10,12 @@ def main():
     plt.savefig('CartPoleResultsv1.png')
 
 
-def clean(inputPath: str, episdoes: int) -> pd.DataFrame:
+def clean(inputPath: str, episodes: int) -> pd.DataFrame:
     df = pd.read_csv(inputPath, index_col=0)
     names = []
     scores = []
     for column in df.columns:
-        names += re.findall("([0-9].[0-9])", column) * 1000
+        names += re.findall("([0-9].[0-9])", column) * episodes
         scores += list(df[column])
     new_df = pd.DataFrame()
     new_df['Version'] = names
