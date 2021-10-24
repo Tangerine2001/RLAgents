@@ -37,7 +37,7 @@ def call_test_model(env, model_path, episodes, result_path):
 
 def test_model(env, modelPath, episodes) -> list:
     model = load_model(modelPath)
-    action_space = [-1, 0, 1]
+    action_space = [0, 1, 2]
     scores = []
     for episode in range(episodes):
         state = env.reset()
@@ -94,7 +94,7 @@ def loseLoss(agent: DQLAgent):
 
 def rewardFunc(agent: DQLAgent):
     s = agent.state[0]
-    return s[0] + s[1]
+    return s[0]
 
 
 def scoreFunc(agent: DQLAgent):
