@@ -10,17 +10,17 @@ from ClassicControl.visualizer import clean, plot
 
 
 def main():
-    name = 'Acrobot-v1'
+    name = 'MountainCar-v0'
     env = gym.make(name)
     episodes = 1000
-    model_path = 'AcrobotAgent'
+    model_path = 'MountainCarAgent'
 
-    #start_training(env, model_path, episodes)
+    start_training(env, model_path, episodes)
 
-    result_path = 'AcrobotAgentResults.csv'
-    #call_test_model(env, model_path, episodes, result_path)
+    result_path = 'MountainCarAgentResults.csv'
+    call_test_model(env, model_path, episodes, result_path)
     plot_data(episodes, result_path)
-    plt.savefig('AcrobotAgent.png')
+    plt.savefig('MountainCarAgent.png')
     plt.show()
 
 
@@ -57,9 +57,9 @@ def test_model(env, modelPath, episodes) -> list:
 
 def start_training(env, path, episodes):
     paths = [f'{path}.{i}' for i in range(4)]
-    optimizers = ['Adam'] * 5
-    layers = [1, 1, 2, 3, 4]
-    densities = [[128]] * 2 + [[128, 64]] + [[256, 128, 64]] + [[512, 256, 128, 64]]
+    optimizers = ['Adam'] * 4
+    layers = [1, 1, 2, 3]
+    densities = [[128]] * 2 + [[128, 64]] + [[256, 128, 64]]
     episodes_nums = []
     time_elapsed = []
 
@@ -76,16 +76,15 @@ def start_training(env, path, episodes):
 
 
 def train_model(gameEnv, path, episodes, opt, layers, densities):
-    agent = DQLAgent(game=gameEnv, state=gameEnv.reset(), action_space=[-1, 0, 1],
+    agent = DQLAgent(game=gameEnv, state=gameEnv.reset(), action_space=[0, 1, 2],
                      path=path, episodes=episodes, opt=opt, scoreFunc=scoreFunc, rewardFunc=rewardFunc,
                      layers=layers, objective=objective, densities=densities, loseLoss=loseLoss)
     return agent.run()
 
 
 def objective(agent: DQLAgent):
-    # cos1, sin1, cos2, sin2, 1, 2
-    # 0     1     2     3     4  5
-    return agent.step < 100
+    s = agent.state[0]
+    return s[0] >= 0.5
 
 
 def loseLoss(agent: DQLAgent):
@@ -94,8 +93,8 @@ def loseLoss(agent: DQLAgent):
 
 
 def rewardFunc(agent: DQLAgent):
-    s = agent.env.env.state
-    return (-cos(s[0]) - cos(s[1] + s[0])) * 2
+    s = agent.state[0]
+    return s[0] + s[1]
 
 
 def scoreFunc(agent: DQLAgent):
