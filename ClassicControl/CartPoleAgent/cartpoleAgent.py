@@ -17,7 +17,7 @@ def main():
 
     # start_training(env, name, model_path, episodes)
     #
-    # call_test_model(env, name, episodes, path)
+    call_test_model(env, name, episodes, path)
     plot_data(episodes, path)
     plt.savefig('CartPoleAgent/CartPoleResultsv3.png')
     plt.show()

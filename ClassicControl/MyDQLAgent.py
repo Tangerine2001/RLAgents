@@ -15,7 +15,7 @@ class DQLAgent():
 
         self.state = state
         self.state_size = state.shape[0]
-        self.action_size = self.env.action_space.n
+        self.action_size = len(action_space)
         self.action_space = action_space
         self.episodes = episodes
         self.memory = deque(maxlen=2000)
