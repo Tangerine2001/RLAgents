@@ -1,0 +1,89 @@
+/*
+ * Sidebar
+ *
+ * The sidebar used for links for quick access
+ */
+
+.sidebar{
+    /*Size of sidebar*/
+    height: 100%;
+    width: 400px;
+
+    /*Fixes the position and brings to front*/
+    position: fixed;
+    z-index: 1;
+
+    /*Stick the bar to the border of the page*/
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    /*Sets color and removes overflow detection*/
+    background-color: #2c2a2a;
+    overflow-x: hidden;
+
+    /*Top, right, bottom, left*/
+    padding: 60px 5px 60px 10px;
+}
+
+.sidebar-content{
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+}
+
+.sidebar-content h1, h2, h3, h4, h5{
+    font-family: 'Prata', serif;
+}
+
+.sidebar-title{
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 3.25rem;
+}
+
+.sidebar-title:hover{
+    text-decoration: underline;
+}
+
+.sidebar-content p{
+    color: #9a9a9a;
+    margin-left: 20px;
+    margin-right: 20px;
+    text-align: justify;
+    line-height: 1.5rem;
+}
+
+.sidebar-content p a{
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.sidebar-content p a:hover{
+    text-decoration: underline;
+}
+
+/*
+ * Content
+ *
+ * The content page for the actual, well, content
+ */
+
+.content{
+    /* Same as the width of the sidebar */
+    margin-left: 400px;
+
+    /*Top, right, bottom, left*/
+    padding: 80px 0 50px 220px;
+    font-family: 'Lora', serif;
+}
+
+.content h1{
+    font-size: 3.5rem;
+    color: #2d2b2b;
+}
+
+.content-date{
+    color: #9a9a9a;
+    margin-top: -2rem;
+}
