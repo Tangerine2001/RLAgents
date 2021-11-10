@@ -5,7 +5,8 @@ from ClassicControl.MyModel import myModel
 
 
 class DQLAgent():
-    def __init__(self, game, state, action_space, path: str, opt: str, layers: int, densities, rewardFunc, objective, loseLoss, scoreFunc, episodes=1000):
+    def __init__(self, game, state, action_space, path: str, opt: str, layers: int, densities, rewardFunc, objective,
+                 loseLoss, scoreFunc, episodes=1000, gamma: int = 0.9):
         self.env = game
         self.path = path
         self.objective = objective
@@ -14,6 +15,8 @@ class DQLAgent():
         self.rewardFunc = rewardFunc
 
         self.state = state
+        self.prev_state = state
+        self.start_state = state
         self.state_size = state.shape[0]
         self.action_size = len(action_space)
         self.action_space = action_space
@@ -21,7 +24,7 @@ class DQLAgent():
         self.memory = deque(maxlen=2000)
         self.step = 0
 
-        self.gamma = 0.95  # discount rate
+        self.gamma = gamma  # discount rate
         self.epsilon = 1.0  # exploration rate
         self.epsilon_min = 0.001
         self.epsilon_decay = 0.999
@@ -52,6 +55,7 @@ class DQLAgent():
         miniBatch = random.sample(self.memory, min([len(self.memory), self.batch_size]))
 
         stateSpace = np.zeros((self.batch_size, self.state_size))
+
         nextStateSpace = np.zeros((self.batch_size, self.state_size))
         action, reward, done = [], [], []
 
@@ -77,15 +81,15 @@ class DQLAgent():
         self.model.save(name)
 
     def run(self):
-        timesCorrect = 0
+        justWon = False
         for episode in range(self.episodes):
-            self.state = self.env.reset()
-            self.state = np.reshape(self.state, [1, self.state_size])
+            self.start_state = self.env.reset()
+            self.state = np.reshape(self.start_state, [1, self.state_size])
             done = False
             self.step = 0
             while not done:
                 # Comment out the below to skip watching the learning process
-                # self.env.render()
+                self.env.render()
                 # print(f'Step: {self.step}')
 
                 action = self.act(self.state)
@@ -93,23 +97,27 @@ class DQLAgent():
                 next_state, reward, done, _ = self.env.step(action)
                 next_state = np.reshape(next_state, [1, self.state_size])
                 reward = self.rewardFunc(self)
-                prev_state = self.state
+                self.prev_state = self.state
                 self.state = next_state
 
                 self.step += 1
 
                 if done:
-                    print(f"Episode: {episode}/{self.episodes}, score: {self.scoreFunc(self)}, e: {self.epsilon:.2}")
+                    print(f"Episode: {episode + 1}/{self.episodes}, score: {self.scoreFunc(self)}, e: {self.epsilon:.2}")
                     if self.objective(self):
-                        timesCorrect += 1
-                        if timesCorrect == 5:
-                            print(f"Saving trained model as {self.path}.h5")
-                            self.save(self.path + ".h5")
-                            return episode
-                    else:
-                        reward -= self.loseLoss(self)
+                        if self.step <= 100:
+                            if justWon:
+                                print(f"Saving trained model as {self.path}.h5")
+                                self.save(self.path + ".h5")
+                                return episode
+                            justWon = True
+                        else:
+                            justWon = False
 
-                self.remember(prev_state, action, reward, next_state, done)
+                    # else:
+                    #     reward -= self.loseLoss(self)
+
+                self.remember(self.prev_state, action, reward, self.state, done)
 
                 self.replay()
 
