@@ -10,17 +10,17 @@ from ClassicControl.visualizer import clean, plot
 
 def main():
     name = 'CartPole-v1'
-    path = 'CartPoleAgent/CartPoleResultsv3.csv'
+    path = 'CartPoleAgent/CartPoleResultsv4.csv'
     model_path = 'CartPole-v1'
     episodes = 1000
     env = gym.make(name)
 
-    # start_training(env, name, model_path, episodes)
-    #
-    # call_test_model(env, name, episodes, path)
-    plot_data(episodes, path)
-    plt.savefig('CartPoleAgent/CartPoleResultsv3.png')
-    plt.show()
+    start_training(env, name, model_path, episodes)
+
+    #call_test_model(env, model_path, episodes, path)
+    # plot_data(episodes, path)
+    # plt.savefig('CartPoleAgent/CartPoleResultsv3.png')
+    # plt.show()
 
 
 def plot_data(episodes: int, path: str):
