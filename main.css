@@ -23,13 +23,15 @@
     overflow-x: hidden;
 
     /*Top, right, bottom, left*/
-    padding: 60px 5px 60px 10px;
+    padding: 200px 5px 60px 10px;
 }
 
 .sidebar-content{
-    text-align: center;
     font-family: 'Montserrat', sans-serif;
     font-weight: 300;
+    margin-left: 20px;
+    margin-right: 28px;
+    text-align: left;
 }
 
 .sidebar-content h1, h2, h3, h4, h5{
@@ -48,10 +50,8 @@
 
 .sidebar-content p{
     color: #9a9a9a;
-    margin-left: 20px;
-    margin-right: 20px;
-    text-align: justify;
-    line-height: 1.5rem;
+    line-height: 1.8rem;
+    font-size: 1.3rem;
 }
 
 .sidebar-content p a{
@@ -61,6 +61,58 @@
 
 .sidebar-content p a:hover{
     text-decoration: underline;
+}
+
+.sidebar-links{
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin-left: 30px;
+}
+
+.sidebar-links > div{
+    margin-bottom: 10px;
+}
+
+.sidebar-links i{
+    transform: scaleX(2);
+    text-decoration: none;
+}
+
+.active{
+    margin-left: 40px;
+}
+
+.active i{
+    transform: scaleX(2) translate(0.2rem)
+}
+
+.active .bp-text{
+    text-decoration: underline;
+}
+
+.inactive{
+    margin-left: 30px;
+}
+
+
+.inactive:hover i{
+    color: #e3e3e3;
+    transform: scaleX(2) translate(0.3rem);
+}
+
+.inactive:hover .bp-text{
+    text-decoration: underline;
+}
+
+.bp-text{
+    display: inline;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    margin-left: 10px;
+}
+
+.bp-text:hover{
+    cursor: pointer;
 }
 
 /*
@@ -85,5 +137,17 @@
 
 .content-date{
     color: #9a9a9a;
-    margin-top: -2rem;
+    margin-top: -2.5rem;
+}
+
+.content p{
+    margin-right: 220px;
+    font-family: 'Chivo', sans-serif;
+    font-size: 1.4rem;
+    color: #4d4d4d;
+}
+
+#TFImage{
+    cursor: pointer;
+    height: 300px;
 }

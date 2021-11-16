@@ -2,30 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Prata" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lora|Montserrat|Prata|Chivo" rel="stylesheet">
     <title>Testing Sidebar</title>
 </head>
 <body>
     <link rel="stylesheet" href="main.css">
+    <script src="https://kit.fontawesome.com/b7a527cb08.js" crossorigin="anonymous"></script>
+    <script src="main.js"></script>
     <div class="sidebar">
         <div class="sidebar-content">
             <h1>
                 <a href="" class="sidebar-title">RLAgents</a>
             </h1>
             <p>
-                RLAgents is a project that I have been working on in my free time to solve OpenAI Gym
-                Environments. Below are links to each of them. The links will contain my thought processes
-                and small code snippets, but never the actual thing. If you want to look at all my code,
-                visit my
+                RLAgents is a project that I work on in my free time to solve
+                <a href="">OpenAI Gym</a>
+                Environments. Below are links to each of them. The links will
+                contain my thought processes and small code snippets, but never
+                the actual thing. If you want to look at all my code, visit my
                 <a href="">Github</a>
-                page.
+                 page.
             </p>
+        </div>
+        <div class="link-container" id="links">
+            <div class="sidebar-links">
+                <div class="active" id="active">
+                    <i class="fas fa-caret-right"></i>
+                    <div class="bp-text" onclick="swapLinks('Home')">Home</div>
+                </div>
+                <div class="inactive">
+                    <i class="fas fa-caret-right"></i>
+                    <div class="bp-text" onclick="swapLinks('About')">About</div>
+                </div>
+                <div class="inactive">
+                    <i class="fas fa-caret-right"></i>
+                    <div class="bp-text" onclick="swapLinks('ClassicControl')">ClassicControl</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="content">
         <h1>Home</h1>
         <div class="content-date">Last updated Nov 9th, 2021 at 7:12 P.M. (EST)</div>
+        <p>
+            Welcome to my page explaining how I solved OpenAI Gym's problems. This is
+            still a work in progress, so I still have many left to solve, but for now
+            you can read about my solutions to the Classic Control problems. To solve them,
+            I exclusively used Tensorflow's library. You can check out their link here:
+            <img src="tensorflowImage.png" id="TFImage">
+        </p>
     </div>
 </body>
 </html>
