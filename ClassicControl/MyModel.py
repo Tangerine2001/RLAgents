@@ -1,23 +1,25 @@
-from tensorflow.keras.models import Model
+from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Input, Dense
 
 
-def myModel(input_space, action_space, name, opt=str, num_of_layers=1, densities=None):
-    # Starting with inputs from available inputs,
-    # We really only need one layer with 128 nodes
-    # to solve the ClassicControl games.
-    assert num_of_layers == len(densities)
-    if densities is None:
-        densities = [128]
+def myModel(env, name, activation, num_of_layers=1, densities=None):
+    # Basic length checking
+    assert num_of_layers == len(densities), 'Amount of layer combinations does not match number of densities'\
 
-    dataInput = Input(input_space)
-    layer = dataInput
+    # Get input and out sizes
+    obs_size = len(env.reset())
+    actions = env.action_space.n
+
+    # Create the model
+    model = Sequential(name=name)
+    model.add(Input(shape=(obs_size,)))
     for i in range(num_of_layers):
-        layer = Dense(densities[i], input_shape=input_space, activation="relu", kernel_initializer='he_uniform')(layer)
-    output = Dense(action_space, activation='linear')(layer)
+        model.add(Dense(densities[i], input_shape=(actions,), kernel_initializer='lecun_normal',
+                        activation=activation, name=f'HiddenLayer{i}'))
+    model.add(Dense(actions, activation='softmax'))
 
-    model = Model(inputs=dataInput, outputs=output, name=name)
-    model.compile(loss='mean_squared_error', optimizer=opt, metrics=['accuracy'])
-
+    # Compile model with optimizer and other params
+    model.compile(optimizer='adam', metrics=['accuracy'], loss='mean_squared_error')
     model.summary()
+
     return model
