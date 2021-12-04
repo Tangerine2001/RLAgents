@@ -7,25 +7,30 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 from ClassicControl.MyDQLAgent import DQLAgent
 from ClassicControl.visualizer import clean, plot
+from ClassicControl.Email import email
 
 
 def main():
     name = 'MountainCar-v0'
     env = gym.make(name)
-    episodes = 1000
-    model_path = 'MountainCarAgentv4'
+    episodes = 3000
+    versionNum = 16
+    model_path = f'MountainCarAgentv{versionNum}'
 
     start_training(env, model_path, episodes)
 
-    result_path = 'MountainCarAgentResultsv4.csv'
-    call_test_model(env, model_path, episodes, result_path)
-    plot_data(episodes, result_path)
-    plt.savefig('MountainCarAgentv4.png')
+    result_path = f'MountainCarAgentResultsv{versionNum}.csv'
+
+    call_test_model(env, model_path, episodes // 5, result_path)
+    plot_data(episodes // 5, result_path)
+    plt.savefig(f'MountainCarAgentv{versionNum}.png')
     plt.show()
 
-def play_game():
-    action_space = [0, 1, 2]
+    mail = email(f'MountainCarAgentv{versionNum} done')
+    mail.send()
 
+    df = pd.read_csv(result_path)
+    print(df.mean(axis=0))
 
 
 def call_test_model(env, model_path, episodes, result_path):
@@ -61,16 +66,16 @@ def test_model(env, modelPath, episodes) -> list:
 
 def start_training(env, path, episodes):
     paths = [f'{path}.{i}' for i in range(4)]
-    optimizers = ['Adam'] * 4
+    activations = ['relu'] * 4
     layers = [2, 2, 2, 2]
-    densities = [[128, 64]] + [[128, 64]] + [[128, 64]] + [[128, 64]]
-    gamma = [0.96, 0.95, 0.94, 0.93]
+    densities = [[256, 128]] + [[512, 256]] + [[512, 256]] + [[1024, 512]]
+    gamma = [0.95] * 4
     episodes_nums = []
     time_elapsed = []
 
     for i in range(4):
         start = time.perf_counter()
-        episodes_nums.append(train_model(env, paths[i], episodes, optimizers[i], layers[i], densities[i], gamma[i]))
+        episodes_nums.append(train_model(env, paths[i], episodes, activations[i], layers[i], densities[i], gamma[i]))
         end = time.perf_counter()
         time_elapsed.append(end - start)
 
@@ -80,16 +85,16 @@ def start_training(env, path, episodes):
     print('---------------------------------------------')
 
 
-def train_model(gameEnv, path, episodes, opt, layers, densities, gamma):
-    agent = DQLAgent(game=gameEnv, state=gameEnv.reset(), action_space=[0, 1, 2],
-                     path=path, episodes=episodes, opt=opt, scoreFunc=scoreFunc, rewardFunc=rewardFunc,
-                     layers=layers, objective=objective, densities=densities, loseLoss=loseLoss,
+def train_model(gameEnv, path, episodes, act, layers, densities, gamma):
+    agent = DQLAgent(game=gameEnv, path=path, episodes=episodes, activation=act,
+                     scoreFunc=scoreFunc, rewardFunc=rewardFunc, layers=layers,
+                     objective=objective, densities=densities, loseLoss=loseLoss,
                      gamma=gamma)
     return agent.run()
 
 
 def objective(agent: DQLAgent):
-    s = agent.state[0]
+    s = agent.state
     return s[0] >= 0.5
 
 
@@ -103,11 +108,11 @@ def rewardFunc(agent: DQLAgent):
     # reward is kinetic energy + potential energy
     # mass is 1. gravity is 0.0025. height is given as
     # np.sin(3 * x) * 0.45 + 0.55
-    s = agent.state[0]
-    prev_s = agent.prev_state.reshape((1, 2))[0]
+    s = agent.state
+    prev_s = agent.prev_state
 
-    # Multiply mechanical energy by 100 to make the function converge faster
-    multiplier = 10000
+    # Multiply mechanical energy by 1000 to make the function converge faster
+    multiplier = 1000
     prev_reward = multiplier * (((prev_s[1] ** 2) / 2) + (0.0025 * np.sin(3 * prev_s[0]) * 0.45 + 0.55))
     reward = multiplier * (((s[1] ** 2) / 2) + (0.0025 * np.sin(3 * s[0]) * 0.45 + 0.55))
 
@@ -116,11 +121,11 @@ def rewardFunc(agent: DQLAgent):
     if s[0] >= 0.5:
         reward += 50 - 5 * (agent.step / 100)
         if agent.step <= 100:
-            reward += 50
-        elif agent.step <= 110:
-            reward += 25
-        elif agent.step <= 120:
-            reward += 5
+            reward += 100
+    #     elif agent.step <= 110:
+    #         reward += 25
+    #     elif agent.step <= 120:
+    #         reward += 5
     return reward
 
 
